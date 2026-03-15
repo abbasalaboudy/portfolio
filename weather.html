@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تطبيق الطقس 🌤️</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            color: #e94560;
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: 2px solid #e94560;
+            background: transparent;
+            color: white;
+            width: 250px;
+            outline: none;
+        }
+
+        input::placeholder {color: #aaa;}
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        #card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            width: 350px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        #cityName { font-size: 28px; font-weight: bold; margin-bottom: 10px;}
+        #temp { font-size: 72px; color: #e94560; font-weight: bold; }
+        #description { font-size: 20px; color: #aaa; margin: 10px 0; }
+
+        .details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .detail-value { font-size: 22px; font-weight:  bold; color: #e94560; }
+        .detail-label { font-size: 12px; color:  #aaa; margin-top: 5px; }
+
+        #error { color: #e94560; font-size: 18px; display: none; margin: 20px; }
+        #loading { display: none; margin: 20px; font-size: 18px;}
+    </style>
+</head>
+<body>
+    <h1>🌤️ تطبيق الطقس</h1>
+    <div class="search">
+        <input type="text" id="cityInput" placeholder="ادخل اسم المدينة...">
+        <button id="btnSearch">بحث 🔍</button>
+    </div>
+    
+    <div id="loading">جاري التحميل... ⏳</div>
+    <div id="error">المدينة غير موجودة! ❌</div>
+    <div id="card">
+        <div id="cityName"></div>
+        <div id="temp"></div>
+        <div id="description"></div>
+        <div class="details">
+        <div class="detail">
+            <div class="detail-value" id="humidity"></div>
+            <div class="detail-label">الرطوبة 💧</div>
+        </div>
+        <div class="detail">
+            <div class="detail-value" id="wind"></div>
+            <div class="detail-label">الرياح 💨</div>
+        </div>
+        <div class="detail">
+            <div class="detail-value" id="feels"></div>
+            <div class="detail-label">الإحساس 🌡️</div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const cityInput = document.getElementById("cityInput")
+        const btnSearch = document.getElementById("btnSearch")
+        const card = document.getElementById("card")
+        const loading = document.getElementById("loading")
+        const error = document.getElementById("error")
+
+        const getWeather = () => {
+            const city = cityInput.value
+            if (city === "") return
+
+            card.style.display = "none"
+            error.style.display = "none"
+            loading.style.display = "block"
+
+            // أولاً — حول اسم المدينة لإحداثيات
+            fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en`)
+                .then(response => response.json())
+                .then(geoData => {
+
+                    if (!geoData.results) {
+                        loading.style.display = "none"
+                        error.style.display = "block"
+                        return
+                    }
+
+                    const { latitude, longitude, name, country } = geoData.results[0]
+
+                    // ثانياً — جلب بيانات الطقس
+                    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature`)
+                        .then(response => response.json())
+                        .then(weatherData => {
+                            loading.style.display = "none"
+
+                        const { temperature_2m, relative_humidity_2m, wind_speed_10m, apparent_temperature, weather_code } = weatherData.current
+
+                        const getDescription = (code) => {
+                            if (code === 0) return "صافي ☀️"
+                            if (code <= 3) return "غائم جزئياً ⛅"
+                            if (code <= 48) return "ضبابي 🌫️"
+                            if (code <= 67) return "ممطر 🌧️"
+                            if (code <= 77) return "ثلجي ❄️"
+                            if (code <= 99) return "عواصف رعدية ⛈️"
+                            return "غير معروف"
+                        }
+
+                        document.getElementById("cityName").textContent = `📍 ${name}, ${country}`
+                        document.getElementById("temp").textContent = `${Math.round(temperature_2m)}°`
+                        document.getElementById("description").textContent = getDescription(weather_code)
+                        document.getElementById("humidity").textContent = `${relative_humidity_2m}%`
+                        document.getElementById("wind").textContent = `${wind_speed_10m} km/h`
+                        document.getElementById("feels").textContent = `${Math.round(apparent_temperature)}°`
+
+                        card.style.display = "block"
+                    })
+            })
+    }
+
+    btnSearch.addEventListener("click", getWeather)
+
+    cityInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") getWeather()
+    })
+    </script>
+    
+</body>
+</html>

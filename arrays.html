@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Arrays & Loops</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 50px;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        #list {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 20px auto;
+
+        }
+
+        #list li {
+            background: #1db954;
+            margin: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #1db954;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>قائمة المهام 📝</h1>
+
+    <input type="text" id="taskInput" placeholder="أضف مهمة...">
+    <button id="btnAdd">إضافة ➕</button>
+    <button id="btnClear">مسح الكل 🗑️</button>
+
+    <ul id="list"></ul>
+
+    <script>
+        let tasks = []
+        let taskInput = document.getElementById("taskInput")
+        let btnAdd = document.getElementById("btnAdd")
+        let btnClear  = document.getElementById("btnClear")
+        let list = document.getElementById("list")
+
+        //  دالة عرض المهام
+        function showTasks() {
+            list.innerHTML = ""
+            for (let i = 0; i < tasks.length; i++) {
+                let li = document.createElement("li")
+                li.textContent = tasks[i]
+
+                //  أنشئ زر حذف
+                let btnDelete = document.createElement("button")
+                btnDelete.textContent = "🗑️"
+                btnDelete.addEventListener("click", function() {
+                    tasks.splice(i, 1) // احذف عنصر واحد من موضع i
+                    showTasks()
+                })
+
+
+                li.appendChild(btnDelete)  // أضف الزر داخل li
+                list.appendChild(li)
+            }
+        }
+
+        //  إضافة مهمة
+        btnAdd.addEventListener("click", function() {
+            let task = taskInput.value
+            if (task !== "") {
+                tasks.push(task)
+                taskInput.value = ""
+                showTasks()
+            }
+        })
+
+        //  مسح الكل
+        btnClear.addEventListener("click", function() {
+            tasks = []
+            showTasks()
+        })
+    </script>
+
+</body>
+</html>

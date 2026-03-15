@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>local storage</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 50px;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        #list {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        #list li {
+            background: #e67e22;
+            margin: 8px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+
+    </style>
+</head>
+<body>
+    
+    <h1>مهامي 💾</h1>
+    <input type="text" id="taskInput" placeholder="أضف مهمة...">
+    <button id="btnAdd">إضافة ➕</button>
+    <button id="btnClear">مسح الكل 🗑️</button>
+    <p id="info">البيانات محفوظة حتى بعد إغلاق المتصفح!</p>
+    
+    <ul id="list"></ul>
+
+    <script>
+        let taskInput = document.getElementById("taskInput")
+        let btnAdd  = document.getElementById("btnAdd")
+        let btnClear = document.getElementById("btnClear")
+        let list = document.getElementById("list")
+
+        //  تحميل المهام من Local Storage عند فتح الصفحة
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+
+        //  عرض المهام
+        function showTasks() {
+            list.innerHTML = ""
+            for (let i =0; i< tasks.length; i++) {
+                let li = document.createElement("li")
+                li.textContent = tasks[i]
+            
+
+                let btnDelete = document.createElement("button")
+                btnDelete.textContent = "🗑️"
+                btnDelete.addEventListener("click", function() {
+                    tasks.splice(i, 1)
+                    saveTasks()
+                    showTasks()
+                })
+
+                li.appendChild(btnDelete)
+                list.appendChild(li)
+            }
+        }    
+
+        //  حفظ المهام في Local Storage
+        function saveTasks() {
+            localStorage.setItem("tasks", JSON.stringify(tasks))
+        }
+
+        // إضافة مهمة
+        btnAdd.addEventListener("click", function() {
+            let task = taskInput.value
+            if (task !== "") {
+                tasks.push(task)
+                taskInput.value = ""
+                saveTasks()
+                showTasks()
+            }
+        })
+
+        //  مسح الكل
+        btnClear.addEventListener("click", function() {
+            tasks = []
+            saveTasks()
+            showTasks()
+        })
+
+        //  رض المهام عند فتح الصفحة
+        showTasks()    
+    </script>
+
+</body>
+
+</html>

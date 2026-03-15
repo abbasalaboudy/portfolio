@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar">
+    <head>
+        <meta charset="UTF-8">
+        <title>Events</title>
+        <style>
+            body {
+                font-family: Arial;
+                text-align: center;
+                padding: 50px;
+                background: #1a1a2e;
+                color: white;
+            }
+
+            #myBox {
+                width: 200px;
+                height: 200px;
+                background: #e94560;
+                margin: 30px auto;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            #counter {
+                font-size: 48px;
+                color: #e94560;
+                margin: 20px;
+            }
+
+            button {
+                padding: 10px 25px;
+                margin: 10px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                background: #e94560;
+                color: white;
+            }
+
+            #myInput {
+                padding: 10px;
+                font-size: 18px;
+                border-radius: 8px;
+                border: none;
+                margin: 16px;
+                text-align: center;
+            }
+
+            #result {
+                font-size: 24px;
+                margin: 10px;
+                color: #0f3460;
+                background: white;
+                padding: 10px;
+                border-radius: 8px;
+                display: inline-block;
+            }
+
+        </style>
+    </head>
+    <body>
+        <h1>تعلم Events 🎯</h1>
+
+        <!--تجربة 1: العداد-->
+        <h2>اضغط على الصندوق</h2>
+        <div id="myBox">اضغطني!</div>
+        <div id="counter">0</div>
+        <!-- تجربة2: الكتابة -->
+        <h2>اكتب شيئاً</h2>
+        <input type="text" id="myInput" placeholder="اكتب هنا...">
+        <div id="result">النتيجة هنا</div>
+
+        <!-- تجربة 3: الازرار -->
+        <h2>التحكم</h2>
+        <button id="btnReset">إعادة تعيين 🔄</button>
+        <button id="btnColor">لون عشوائي 🎨</button>
+
+        <script>
+            // المتعيرات
+            let count = 0
+            let box = document.getElementById("myBox")
+            let counter  = document.getElementById("counter")
+            let myInput = document.getElementById("myInput")
+            let result  = document.getElementById("result")
+            let btnReset  = document.getElementById("btnReset")
+            let btnColor  = document.getElementById("btnColor")
+            
+            // تجربة 1: كل ضغطة تزيد العداد
+            box.addEventListener("click", function() {
+                count++
+                counter.textContent = count
+            })
+
+            // تجربة 2: كل حرف تكتبه يظهر مباشرة
+            myInput.addEventListener("input", function() {
+                result.textContent = myInput.value
+            })
+
+            // تجربة 3: إعادة التعيين
+            btnReset.addEventListener("click", function() {
+                count = 0
+                counter.textContent = 0
+            })
+            // تجربة 4: لون عشوائي
+            btnColor.addEventListener("click", function() {
+                let colors = ["#e94560", "#0f3460", "#533483", "#2ecc71", "#f39c12"]
+                let random = Math.floor(Math.random() * colors.length)
+                box.style.backgroundColor = colors[random]
+            })
+            // تجربة 5: تغيير لون الصندوق عند مرور الماوس
+            
+            box.addEventListener("mouseover", function() {
+
+                let colors = ["#e94560", "#0f3460", "#533483", "#2ecc71", "#f39c12"]
+                let random = Math.floor(Math.random() * colors.length)
+                box.style.background = colors[random]
+            })
+
+        </script>
+
+
+    </body>
+
+</html>

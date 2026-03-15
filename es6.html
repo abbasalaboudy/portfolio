@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Es6</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 50px;
+            background: #0f0f0f;
+            color: white;
+        }
+
+        .card {
+            background: #1a1a2e;
+            max-width: 500px;
+            margin: 15px auto;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 4px solid #2ecc71;
+            text-align: right;
+        }
+
+        .name {
+            font-size: 20px;
+            color: #2ecc71;
+        }
+        
+        .info {
+            color: #aaa;
+            margin: 5px 0;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px;
+        }
+
+        #container {
+            max-width: 500px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    
+    <h1>قائمة المستخدمين 👥</h1>
+    <button id="btnShow">عرض المستخدمين 🔄</button>
+    <div id="container"></div>
+
+    <script>
+        const Users = [
+            { name: "أحمد محمد", age: 25, city: "الرياض", job: "مطور" },
+            { name: "سارة علي", age: 30, city: "جدة", job: "مصممة" },
+            { name: "خالد عمر", age: 22, city: "الدمام", job: "طالب" },
+            { name: "نورا أحمد", age: 28, city: "القاهرة", job: "معلمة" },
+            { name: "عباس علي", age: 30, city: "العراق", job: "مبرمج" }  
+        ]
+
+        const container = document.getElementById("container")
+        const btnShow = document.getElementById("btnShow")
+
+        //  Arrow Function
+        const showUser = () => {
+            container.innerHTML = ""
+
+            //  forEach بدل for
+            Users.forEach(user => {
+                //Destructuring
+                const { name, age, city, job } = user
+
+                //  Template Literals
+                const card = `
+                    <div class="card">
+                        <div class="name">👤 ${name}</div>
+                        <div class="info">🎂 العمر: ${age}</div>
+                        <div class="info">📍 المدينة: ${city}</div>
+                        <div class="info">💼 الوظيفة: ${job}</div>
+                    </div>
+                `
+                container.innerHTML +=card
+            })
+        }
+
+        btnShow.addEventListener("click", showUser)
+    </script>
+</body>
+</html>
