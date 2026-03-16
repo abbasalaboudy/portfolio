@@ -80,6 +80,43 @@
 
         #error { color: #e94560; font-size: 18px; display: none; margin: 20px; }
         #loading { display: none; margin: 20px; font-size: 18px;}
+        
+        #weatherIcon {
+        font-size: 80px;
+        margin: 10px 0;
+       }
+
+       @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .search {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            input {
+                width: 90vw;
+            }
+
+            button {
+                width: 90vw;
+            }
+
+            #card {
+                width: 90vw;
+                padding: 20px;
+            }
+
+            #temp {
+                font-size: 50px;
+            }
+
+            #weatherIcon {
+                font-size: 60px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -87,12 +124,14 @@
     <div class="search">
         <input type="text" id="cityInput" placeholder="ادخل اسم المدينة...">
         <button id="btnSearch">بحث 🔍</button>
+        <button id="btnLocation">📍 موقعي</button>
     </div>
     
     <div id="loading">جاري التحميل... ⏳</div>
     <div id="error">المدينة غير موجودة! ❌</div>
     <div id="card">
         <div id="cityName"></div>
+        <div id="weatherIcon"></div>
         <div id="temp"></div>
         <div id="description"></div>
         <div class="details">
@@ -117,6 +156,7 @@
         const card = document.getElementById("card")
         const loading = document.getElementById("loading")
         const error = document.getElementById("error")
+        const btnLocation = document.getElementById("btnLocation")
 
         const getWeather = () => {
             const city = cityInput.value
@@ -126,8 +166,8 @@
             error.style.display = "none"
             loading.style.display = "block"
 
-            // أولاً — حول اسم المدينة لإحداثيات
-            fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en`)
+            // أولاً — ابحث بالعربي لجلب الإحداثيات
+            fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=ar`)
                 .then(response => response.json())
                 .then(geoData => {
 
@@ -139,42 +179,112 @@
 
                     const { latitude, longitude, name, country } = geoData.results[0]
 
-                    // ثانياً — جلب بيانات الطقس
+                    // ثانياً — جلب بيانات الطقس بالإحداثيات
                     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature`)
                         .then(response => response.json())
                         .then(weatherData => {
                             loading.style.display = "none"
 
-                        const { temperature_2m, relative_humidity_2m, wind_speed_10m, apparent_temperature, weather_code } = weatherData.current
+                            const { temperature_2m, relative_humidity_2m, wind_speed_10m, apparent_temperature, weather_code } = weatherData.current
 
-                        const getDescription = (code) => {
-                            if (code === 0) return "صافي ☀️"
-                            if (code <= 3) return "غائم جزئياً ⛅"
-                            if (code <= 48) return "ضبابي 🌫️"
-                            if (code <= 67) return "ممطر 🌧️"
-                            if (code <= 77) return "ثلجي ❄️"
-                            if (code <= 99) return "عواصف رعدية ⛈️"
-                            return "غير معروف"
-                        }
+                            const getDescription = (code) => {
+                                if (code === 0) return "صافي ☀️"
+                                if (code <= 3) return "غائم جزئياً ⛅"
+                                if (code <= 48) return "ضبابي 🌫️"
+                                if (code <= 67) return "ممطر 🌧️"
+                                if (code <= 77) return "ثلجي ❄️"
+                                if (code <= 99) return "عواصف رعدية ⛈️"
+                                return "غير معروف"
+                            }
 
-                        document.getElementById("cityName").textContent = `📍 ${name}, ${country}`
-                        document.getElementById("temp").textContent = `${Math.round(temperature_2m)}°`
-                        document.getElementById("description").textContent = getDescription(weather_code)
-                        document.getElementById("humidity").textContent = `${relative_humidity_2m}%`
-                        document.getElementById("wind").textContent = `${wind_speed_10m} km/h`
-                        document.getElementById("feels").textContent = `${Math.round(apparent_temperature)}°`
+                            const getIcon = (code) => {
+                                if (code === 0) return "☀️"
+                                if (code <= 3) return "⛅"
+                                if (code <= 48) return "🌫️"
+                                if (code <= 67) return "🌧️"
+                                if (code <= 77) return "❄️"
+                                if (code <= 99) return "⛈️"
+                                return "🌡️"
+                            }
 
-                        card.style.display = "block"
-                    })
-            })
-    }
+                            document.getElementById("cityName").textContent = `📍 ${name}, ${country}`
+                            document.getElementById("temp").textContent = `${Math.round(temperature_2m)}°`
+                            document.getElementById("description").textContent = getDescription(weather_code)
+                            document.getElementById("humidity").textContent = `${relative_humidity_2m}%`
+                            document.getElementById("wind").textContent = `${wind_speed_10m} km/h`
+                            document.getElementById("feels").textContent = `${Math.round(apparent_temperature)}°`
+                            document.getElementById("weatherIcon").textContent = getIcon(weather_code)
 
-    btnSearch.addEventListener("click", getWeather)
+                            card.style.display = "block"
+                        })
+                })
+        }
 
-    cityInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") getWeather()
-    })
-    </script>
+        btnLocation.addEventListener("click", () => {
+            if (!navigator.geolocation) {
+                alert("المتصفح لا يدعم تحديد الموقع!")
+                return
+            }
+
+            loading.style.display = "block"
+            card.style.display = "none"
+            error.style.display = "none"
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords
+
+                    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature`)
+                        .then(res => res.json())
+                        .then(weatherData => {
+                            loading.style.display = "none"
+
+                            const { temperature_2m, relative_humidity_2m, wind_speed_10m, apparent_temperature, weather_code } = weatherData.current
+
+                            const getDescription = (code) => {
+                                if (code === 0) return "صافي ☀️"
+                                if (code <= 3) return "غائم جزئياً ⛅"
+                                if (code <= 48) return "ضبابي 🌫️"
+                                if (code <= 67) return "ممطر 🌧️"
+                                if (code <= 77) return "ثلجي ❄️"
+                                if (code <= 99) return "عواصف رعدية ⛈️"
+                                return "غير معروف"
+                            }
+
+                            const getIcon = (code) => {
+                                if (code === 0) return "☀️"
+                                if (code <= 3) return "⛅"
+                                if (code <= 48) return "🌫️"
+                                if (code <= 67) return "🌧️"
+                                if (code <= 77) return "❄️"
+                                if (code <= 99) return "⛈️"
+                                return "🌡️"
+                            }
+
+                            document.getElementById("cityName").textContent = `📍 موقعي الحالي`
+                            document.getElementById("temp").textContent = `${Math.round(temperature_2m)}°`
+                            document.getElementById("description").textContent = getDescription(weather_code)
+                            document.getElementById("humidity").textContent = `${relative_humidity_2m}%`
+                            document.getElementById("wind").textContent = `${wind_speed_10m} km/h`
+                            document.getElementById("feels").textContent = `${Math.round(apparent_temperature)}°`
+                            document.getElementById("weatherIcon").textContent = getIcon(weather_code)
+
+                            card.style.display = "block"
+                        })
+                },
+                () => {
+                    loading.style.display = "none"
+                    alert("لم نتمكن من تحديد موقعك!")
+                }
+            )
+        })
+
+        btnSearch.addEventListener("click", getWeather)
+
+        cityInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") getWeather()
+        })
+</script>
     
 </body>
 </html>
